@@ -7,9 +7,9 @@ services:
   postgres:
     image: postgres
     environment:
-      POSTGRES_DB: quotes_by_people
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
     ports:
       - "5432:5432"
     volumes:

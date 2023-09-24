@@ -1,5 +1,7 @@
+import os
 import pickle
 from typing import Optional
+from dotenv import load_dotenv
 
 import redis
 from jose import JWTError, jwt
@@ -12,10 +14,14 @@ from sqlalchemy.orm import Session
 from src.db.database import get_db
 from src.repository import users as repository_users
 
+load_dotenv()
+
+SECRET_KEY = os.environ.get("SECRET_KEY")
+
 
 class Auth:
     pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-    SECRET_KEY = "secret_key"
+    SECRET_KEY = SECRET_KEY
     ALGORITHM = "HS256"
     oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
     r = redis.Redis(host="localhost", port=6379, db=0)
