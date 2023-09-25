@@ -33,3 +33,10 @@ async def confirmed_email(email: str, db: Session) -> None:
 async def update_token(user: models.User, token: str | None, db: Session) -> None:
     user.refresh_token = token
     db.commit()
+
+
+async def update_avatar(email, url: str, db: Session) -> models.User:
+    user = await get_user_by_email(email, db)
+    user.avatar = url
+    db.commit()
+    return user

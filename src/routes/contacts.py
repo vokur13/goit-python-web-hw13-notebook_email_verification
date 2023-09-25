@@ -1,5 +1,6 @@
 from typing import List, Annotated
 
+
 from fastapi import (
     APIRouter,
     HTTPException,
@@ -37,7 +38,7 @@ async def create_contact(
     return await depo_contacts.create_contact(user=current_user, db=db, contact=contact)
 
 
-@router.get("/", response_model=List[Contact])
+@router.get("", response_model=List[Contact])
 async def read_contacts(
     skip: int = 0,
     limit: int = Query(10, le=100),
