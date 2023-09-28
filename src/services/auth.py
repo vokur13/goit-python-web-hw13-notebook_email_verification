@@ -1,8 +1,6 @@
-import os
 import pickle
 from typing import Optional
 
-from dotenv import load_dotenv
 
 import redis
 from jose import JWTError, jwt
@@ -12,24 +10,20 @@ from passlib.context import CryptContext
 from datetime import datetime, timedelta
 from sqlalchemy.orm import Session
 
-# from src.conf.config import settings
 from src.db.database import get_db
 from src.repository import users as repository_users
 
-load_dotenv()
-
-SECRET_KEY = os.environ.get("SECRET_KEY")
-ALGORITHM = os.environ.get("ALGORITHM")
+from src.conf.config import settings
 
 
 class Auth:
     pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-    # SECRET_KEY = settings.secret_key
-    # ALGORITHM = settings.algorithm
-    SECRET_KEY = SECRET_KEY
-    ALGORITHM = ALGORITHM
+    SECRET_KEY = settings.secret_key
+    ALGORITHM = settings.algorithm
+    # SECRET_KEY = SECRET_KEY
+    # ALGORITHM = ALGORITHM
     oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
-    redis = redis.Redis(host="localhost", port=6379, db=0)
+    redis = redis.Redis(host=settings.redis_host, port=settings.redis_port, db=0)
 
     def verify_password(self, plain_password, hashed_password):
         return self.pwd_context.verify(plain_password, hashed_password)

@@ -2,12 +2,12 @@ from ipaddress import ip_address
 from typing import Callable
 
 import uvicorn
-from fastapi import FastAPI, Depends, HTTPException, Request
+from fastapi import FastAPI, Depends, HTTPException, Request, status
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import text
 from sqlalchemy.orm import Session
-from starlette import status
+
 
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
@@ -31,7 +31,7 @@ banned_ips = [
     ip_address("192.168.1.2"),
 ]
 
-origins = ["http://localhost:3000"]
+origins = ["http://localhost:3000", "http://localhost:63342"]
 
 
 @app.middleware("http")
