@@ -40,6 +40,16 @@ async def signup(
     request: Request,
     db: Session = Depends(get_db),
 ):
+    """
+    The signup function creates a new user in the database.
+
+    :param body: UserCreate: Get the user data from the request body
+    :param background_tasks: BackgroundTasks: Add a task to the background queue
+    :param request: Request: Get the base url of the application
+    :param db: Session: Get a database session
+    :param : Get the user's email from the database
+    :return: A dictionary with the user object and a detail message
+    :doc-author: Trelent"""
     exist_user = await depo_users.get_user_by_email(body.email, db)
     if exist_user:
         raise HTTPException(
@@ -58,6 +68,13 @@ async def signup(
 async def login(
     body: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)
 ):
+    """
+    The login function is used to authenticate a user.
+
+    :param body: OAuth2PasswordRequestForm: Get the username and password from the request body
+    :param db: Session: Access the database
+    :return: An access token and a refresh token
+    :doc-author: Trelent"""
     user = await depo_users.get_user_by_email(body.username, db)
     if user is None:
         raise HTTPException(
@@ -87,6 +104,16 @@ async def refresh_token(
     credentials: HTTPAuthorizationCredentials = Security(security),
     db: Session = Depends(get_db),
 ):
+    """
+    The refresh_token function is used to refresh the access token.
+        The function takes in a refresh token and returns a new access_token and
+        refresh_token pair.
+
+    :param credentials: HTTPAuthorizationCredentials: Get the token from the request header
+    :param db: Session: Get the database session
+    :param : Get the user's email from the token
+    :return: A dict with the token type, access_token and refresh_token
+    :doc-author: Trelent"""
     token = credentials.credentials
     email = await auth_service.decode_refresh_token(token)
     user = await depo_users.get_user_by_email(email, db)
@@ -108,6 +135,17 @@ async def refresh_token(
 
 @router.get("/confirmed_email/{token}")
 async def confirmed_email(token: str, db: Session = Depends(get_db)):
+    """
+    The confirmed_email function is used to confirm a user's email address.
+        It takes in the token that was sent to the user's email and uses it to get their email address.
+        Then, it checks if there is a user with that email in the database. If not, an error message will be returned.
+        If there is a user with that email, then we check if they have already confirmed their account or not (if they have already confirmed their account).
+        If they haven't yet confirmed their account, then we update our database so that this particular users' &quot;confirmed&quot; field becomes True.
+
+    :param token: str: Get the token from the url
+    :param db: Session: Get the database session
+    :return: A message that the email is already confirmed or a message that the email has been confirmed
+    :doc-author: Trelent"""
     email = await auth_service.get_email_from_token(token)
     user = await depo_users.get_user_by_email(email, db)
     if user is None:
@@ -127,6 +165,18 @@ async def request_email(
     request: Request,
     db: Session = Depends(get_db),
 ):
+    """
+    The request_email function is used to send a confirmation email to the user.
+        The function takes in an email address and sends a confirmation link to that address.
+        If the user already has confirmed their account, they will be notified of this.
+
+    :param body: RequestEmail: Get the email from the request body
+    :param background_tasks: BackgroundTasks: Add a task to the background tasks queue
+    :param request: Request: Get the base url of the server
+    :param db: Session: Get the database session
+    :param : Get the user's email and username from the database
+    :return: A message to the user
+    :doc-author: Trelent"""
     user = await depo_users.get_user_by_email(body.email, db)
 
     if user.confirmed:

@@ -23,7 +23,7 @@ app = FastAPI()
 
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
-app.add_middleware(SlowAPIMiddleware)  ## Rate-limit all request
+app.add_middleware(SlowAPIMiddleware)
 
 
 banned_ips = [
@@ -36,6 +36,15 @@ origins = ["http://localhost:3000", "http://localhost:63342"]
 
 @app.middleware("http")
 async def ban_ips(request: Request, call_next: Callable):
+    """
+    The ban_ips function is a middleware function that checks if the client's IP address
+    is in the banned_ips list. If it is, then we return a JSON response with status code 403
+    and an error message. Otherwise, we call the next middleware function and return its response.
+
+    :param request: Request: Access the request object
+    :param call_next: Callable: Pass the next function in the chain
+    :return: A json response object if the client's ip address is in the banned_ips list
+    :doc-author: Trelent"""
     ip = ip_address(request.client.host)
     if ip in banned_ips:
         return JSONResponse(
@@ -61,6 +70,13 @@ app.include_router(users.router, prefix="/api")
 
 @app.get("/api/database_checker")
 def healthchecker(db: Session = Depends(get_db)):
+    """
+    The healthchecker function is a simple function that checks if the database is configured correctly.
+    It does this by executing a SQL query and checking if it returns any results. If it doesn't, then there's something wrong with the database configuration.
+
+    :param db: Session: Pass the database session to the function
+    :return: A dictionary with a message
+    :doc-author: Trelent"""
     try:
         result = db.execute(text("SELECT 1")).fetchone()
         if result is None:
