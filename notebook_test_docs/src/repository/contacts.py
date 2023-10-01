@@ -43,13 +43,14 @@ async def get_contact_by_email(db: Session, user: models.User, email: EmailStr):
 
 
 async def get_contacts(
-        db: Session,
-        email: str | None,
-        user: models.User,
-        first_name: str | None,
-        last_name: str | None,
         skip: int,
         limit: int,
+        user: models.User,
+        email: str | None,
+        first_name: str | None,
+        last_name: str | None,
+        db: Session,
+
 ):
     """
     The get_contacts function returns a list of contacts that match the search criteria.

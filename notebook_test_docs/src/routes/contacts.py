@@ -68,13 +68,13 @@ async def read_contacts(
     :return: A list of contacts
     :doc-author: Trelent"""
     return await depo_contacts.get_contacts(
-        db,
-        email,
-        current_user,
-        first_name,
-        last_name,
         skip,
         limit,
+        current_user,
+        email,
+        first_name,
+        last_name,
+        db,
     )
 
 
