@@ -46,8 +46,7 @@ class TestContacts(unittest.IsolatedAsyncioTestCase):
             password=fake.pystr()
         )
         result = await update_token(user=user, token=fake.pystr(max_chars=100), db=self.session)
-
-        self.assertNotEqual(result, user)
+        self.assertEqual(result.refresh_token, user.refresh_token)
 
 
 if __name__ == '__main__':

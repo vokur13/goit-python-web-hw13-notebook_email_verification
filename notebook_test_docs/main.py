@@ -3,16 +3,14 @@ from typing import Callable
 
 import uvicorn
 from fastapi import FastAPI, Depends, HTTPException, Request, status
-from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
-from sqlalchemy import text
-from sqlalchemy.orm import Session
-
-
+from fastapi.responses import JSONResponse
 from slowapi import Limiter, _rate_limit_exceeded_handler
-from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
 from slowapi.middleware import SlowAPIMiddleware
+from slowapi.util import get_remote_address
+from sqlalchemy import text
+from sqlalchemy.orm import Session
 
 from src.db.database import get_db
 from src.routes import contacts, auth, users
@@ -24,7 +22,6 @@ app = FastAPI()
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 app.add_middleware(SlowAPIMiddleware)
-
 
 banned_ips = [
     ip_address("192.168.1.1"),
@@ -62,10 +59,14 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
 app.include_router(auth.router, prefix="/api")
 app.include_router(contacts.router, prefix="/api")
 app.include_router(users.router, prefix="/api")
+
+
+@app.get("/")
+async def root():
+    return {"message": "Tomato"}
 
 
 @app.get("/api/database_checker")

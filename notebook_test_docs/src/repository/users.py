@@ -55,7 +55,7 @@ async def confirmed_email(email: str, db: Session) -> None:
     db.commit()
 
 
-async def update_token(user: models.User, token: str | None, db: Session) -> None:
+async def update_token(user: models.User, token: str | None, db: Session) -> models.User:
     """
     The update_token function updates the refresh token for a user in the database.
 
@@ -66,6 +66,8 @@ async def update_token(user: models.User, token: str | None, db: Session) -> Non
     :doc-author: Trelent"""
     user.refresh_token = token
     db.commit()
+    db.refresh(user)
+    return user
 
 
 async def update_avatar(email, url: str, db: Session) -> models.User:
@@ -80,4 +82,5 @@ async def update_avatar(email, url: str, db: Session) -> models.User:
     user = await get_user_by_email(email, db)
     user.avatar = url
     db.commit()
+    db.refresh(user)
     return user
