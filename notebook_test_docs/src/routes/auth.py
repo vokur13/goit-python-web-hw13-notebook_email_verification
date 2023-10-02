@@ -12,13 +12,12 @@ from fastapi.security import (
     HTTPAuthorizationCredentials,
     HTTPBearer,
 )
-
 from sqlalchemy.orm import Session
 
-
+from src.conf.messages import ACCOUNT_EXISTS_EXCEPTION, EMAIL_NOT_CONFIRMED, INVALID_PASSWORD, INVALID_EMAIL
 from src.db.database import get_db
-from src.schemas.users import UserCreate, User, Token, RequestEmail, UserResponse
 from src.repository import users as depo_users
+from src.schemas.users import UserCreate, Token, RequestEmail, UserResponse
 from src.services.auth import auth_service
 from src.services.mail import send_email
 
@@ -35,10 +34,10 @@ security = HTTPBearer()
     "/signup", response_model=UserResponse, status_code=status.HTTP_201_CREATED
 )
 async def signup(
-    body: UserCreate,
-    background_tasks: BackgroundTasks,
-    request: Request,
-    db: Session = Depends(get_db),
+        body: UserCreate,
+        background_tasks: BackgroundTasks,
+        request: Request,
+        db: Session = Depends(get_db),
 ):
     """
     The signup function creates a new user in the database.
@@ -53,7 +52,7 @@ async def signup(
     exist_user = await depo_users.get_user_by_email(body.email, db)
     if exist_user:
         raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT, detail="Account already exists"
+            status_code=status.HTTP_409_CONFLICT, detail=ACCOUNT_EXISTS_EXCEPTION
         )
     body.password = auth_service.get_password_hash(body.password)
     new_user = await depo_users.create_user(body, db)
@@ -66,7 +65,7 @@ async def signup(
 
 @router.post("/login", response_model=Token)
 async def login(
-    body: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)
+        body: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)
 ):
     """
     The login function is used to authenticate a user.
@@ -78,15 +77,15 @@ async def login(
     user = await depo_users.get_user_by_email(body.username, db)
     if user is None:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid email"
+            status_code=status.HTTP_401_UNAUTHORIZED, detail=INVALID_EMAIL
         )
     if not user.confirmed:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="Email not confirmed"
+            status_code=status.HTTP_401_UNAUTHORIZED, detail=EMAIL_NOT_CONFIRMED
         )
     if not auth_service.verify_password(body.password, user.password):
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid password"
+            status_code=status.HTTP_401_UNAUTHORIZED, detail=INVALID_PASSWORD
         )
     # Generate JWT
     access_token = await auth_service.create_access_token(data={"sub": user.email})
@@ -101,8 +100,8 @@ async def login(
 
 @router.get("/refresh_token", response_model=Token)
 async def refresh_token(
-    credentials: HTTPAuthorizationCredentials = Security(security),
-    db: Session = Depends(get_db),
+        credentials: HTTPAuthorizationCredentials = Security(security),
+        db: Session = Depends(get_db),
 ):
     """
     The refresh_token function is used to refresh the access token.
@@ -160,10 +159,10 @@ async def confirmed_email(token: str, db: Session = Depends(get_db)):
 
 @router.post("/request_email")
 async def request_email(
-    body: RequestEmail,
-    background_tasks: BackgroundTasks,
-    request: Request,
-    db: Session = Depends(get_db),
+        body: RequestEmail,
+        background_tasks: BackgroundTasks,
+        request: Request,
+        db: Session = Depends(get_db),
 ):
     """
     The request_email function is used to send a confirmation email to the user.

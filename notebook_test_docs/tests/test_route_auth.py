@@ -2,6 +2,7 @@ from unittest.mock import MagicMock
 
 import pytest
 
+from src.conf.messages import ACCOUNT_EXISTS_EXCEPTION, EMAIL_NOT_CONFIRMED, INVALID_PASSWORD, INVALID_EMAIL
 from src.db.models import User
 
 
@@ -26,7 +27,7 @@ def test_repeat_create_user(client, user):
     )
     assert response.status_code == 409, response.text
     data = response.json()
-    assert data["detail"] == "Account already exists"
+    assert data["detail"] == ACCOUNT_EXISTS_EXCEPTION
 
 
 def test_login_user_not_confirmed(client, user):
@@ -36,7 +37,7 @@ def test_login_user_not_confirmed(client, user):
     )
     assert response.status_code == 401, response.text
     data = response.json()
-    assert data["detail"] == "Email not confirmed"
+    assert data["detail"] == EMAIL_NOT_CONFIRMED
 
 
 def test_login_user(client, session, user):
@@ -59,7 +60,7 @@ def test_login_wrong_password(client, user):
     )
     assert response.status_code == 401, response.text
     data = response.json()
-    assert data["detail"] == "Invalid password"
+    assert data["detail"] == INVALID_PASSWORD
 
 
 def test_login_wrong_email(client, user):
@@ -69,4 +70,4 @@ def test_login_wrong_email(client, user):
     )
     assert response.status_code == 401, response.text
     data = response.json()
-    assert data["detail"] == "Invalid email"
+    assert data["detail"] == INVALID_EMAIL

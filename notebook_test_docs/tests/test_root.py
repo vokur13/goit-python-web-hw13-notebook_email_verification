@@ -9,4 +9,4 @@ def test_root():
     response = client.get('/')
     assert response.status_code == 200, response.text
     data = response.json()
-    assert data["massage"] == "FastAPI Workbook"
+    assert data["message"] == "Tomato"
