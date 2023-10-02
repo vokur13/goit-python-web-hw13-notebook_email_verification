@@ -1,10 +1,6 @@
-from ipaddress import ip_address
-from typing import Callable
-
 import uvicorn
-from fastapi import FastAPI, Depends, HTTPException, Request, status
+from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from slowapi.middleware import SlowAPIMiddleware
@@ -15,7 +11,7 @@ from sqlalchemy.orm import Session
 from src.db.database import get_db
 from src.routes import contacts, auth, users
 
-limiter = Limiter(key_func=get_remote_address, application_limits=["2/5seconds"])
+limiter = Limiter(key_func=get_remote_address, application_limits=["20/60seconds"])
 
 app = FastAPI()
 
@@ -23,33 +19,7 @@ app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 app.add_middleware(SlowAPIMiddleware)
 
-banned_ips = [
-    ip_address("192.168.1.1"),
-    ip_address("192.168.1.2"),
-]
-
 origins = ["http://localhost:3000", "http://localhost:63342"]
-
-
-@app.middleware("http")
-async def ban_ips(request: Request, call_next: Callable):
-    """
-    The ban_ips function is a middleware function that checks if the client's IP address
-    is in the banned_ips list. If it is, then we return a JSON response with status code 403
-    and an error message. Otherwise, we call the next middleware function and return its response.
-
-    :param request: Request: Access the request object
-    :param call_next: Callable: Pass the next function in the chain
-    :return: A json response object if the client's ip address is in the banned_ips list
-    :doc-author: Trelent"""
-    ip = ip_address(request.client.host)
-    if ip in banned_ips:
-        return JSONResponse(
-            status_code=status.HTTP_403_FORBIDDEN, content={"detail": "You are banned"}
-        )
-    response = await call_next(request)
-    return response
-
 
 app.add_middleware(
     CORSMiddleware,
@@ -66,6 +36,12 @@ app.include_router(users.router, prefix="/api")
 
 @app.get("/")
 async def root():
+    """
+The root function returns a JSON object with the message &quot;Tomato&quot;.
+
+:return: A dictionary, which is converted to json by default
+:doc-author: Trelent
+"""
     return {"message": "Tomato"}
 
 
